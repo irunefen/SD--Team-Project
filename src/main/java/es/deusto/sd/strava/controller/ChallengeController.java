@@ -31,10 +31,10 @@ public class ChallengeController {
     }
 
     /**
-     * Extrae el token del encabezado de autorización.
+     * Extract the token 
      *
-     * @param authorizationHeader Encabezado de autorización.
-     * @return Token extraído o null si no es válido.
+     * @param authorizationHeader Token header
+     * @return Extracted token or null if not found
      */
     private String extractToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
