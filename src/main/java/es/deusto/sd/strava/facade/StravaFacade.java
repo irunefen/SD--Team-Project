@@ -38,15 +38,15 @@ public class StravaFacade {
     public RegistrationStatusDTO registerUser(RegisterUserDTO dto, String authProviderName) {
         boolean isRegistered = userService.isEmailRegistered(dto.getEmail(), authProviderName);
         if (isRegistered) {
-            return new RegistrationStatusDTO("Conflict", "Email ya registrado con este proveedor.", null);
+            return new RegistrationStatusDTO("Conflict", "Email already registered with this provider.", null);
         }
 
         User user = userService.createUser(dto, authProviderName);
         if (user == null) {
-            return new RegistrationStatusDTO("Conflict", "Email ya registrado.", null);
+            return new RegistrationStatusDTO("Conflict", "Email already registered.", null);
         }
 
-        return new RegistrationStatusDTO("Created", "Usuario registrado exitosamente.", user.getUserId());
+        return new RegistrationStatusDTO("Created", "User registrated succesfully.", user.getUserId());
     }
 
     public AuthTokenDTO loginUser(String email, String password, String authProviderName) {
@@ -60,7 +60,7 @@ public class StravaFacade {
 
     public LogoutConfirmationDTO logoutUser(String token) {
         authService.invalidateToken(token);
-        return new LogoutConfirmationDTO("OK", "Logout exitoso.");
+        return new LogoutConfirmationDTO("OK", "Logout successful.");
     }
 
     public TrainingSessionDetailsDTO createTrainingSession(String token, TrainingSessionDTO dto) {
@@ -140,9 +140,9 @@ public class StravaFacade {
         }
         boolean success = challengeService.registerChallengeAcceptance(user, challengeId);
         if (success) {
-            return new AcceptanceConfirmationDTO("OK", "Desafío aceptado exitosamente.", challengeId);
+            return new AcceptanceConfirmationDTO("OK", "Challenge succesfully accepted", challengeId);
         } else {
-            return new AcceptanceConfirmationDTO("Not Found", "Desafío no encontrado.", challengeId);
+            return new AcceptanceConfirmationDTO("Not Found", "Challenge not found.", challengeId);
         }
     }
 
