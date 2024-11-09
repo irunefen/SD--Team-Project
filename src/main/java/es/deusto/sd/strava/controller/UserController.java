@@ -36,7 +36,7 @@ public class UserController {
     )
     public ResponseEntity<RegistrationStatusDTO> registerUser(
             @Parameter(name = "authProviderName", description = "Name of the authentication provider", required = true, example = "Google")
-            @RequestHeader("authProviderName") String authProviderName,
+            @RequestParam("authProviderName") String authProviderName,
             @RequestBody RegisterUserDTO dto) {
         
         RegistrationStatusDTO status = facade.registerUser(dto, authProviderName);
