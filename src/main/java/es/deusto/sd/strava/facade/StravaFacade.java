@@ -108,14 +108,15 @@ public class StravaFacade {
         );
     }
 
-    public List<ChallengeResponseDTO> getActiveChallenges(String token, String sport, String startDate, String endDate, Integer limit) {
+    public List<ChallengeResponseDTO> getActiveChallenges(String token, String sport, LocalDate startDate, LocalDate endDate, Integer limit) {
         User user = authService.validateToken(token);
         if (user == null) {
             return null;
         }
+        
         int actualLimit = (limit != null) ? limit : 5;
-        java.time.LocalDate start = (startDate != null) ? java.time.LocalDate.parse(startDate) : null;
-        java.time.LocalDate end = (endDate != null) ? java.time.LocalDate.parse(endDate) : null;
+        LocalDate start = startDate;
+        LocalDate end = endDate;
 
         List<Challenge> challenges = challengeService.fetchActiveChallenges(sport, start, end, actualLimit);
         return challenges.stream()

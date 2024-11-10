@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import es.deusto.sd.strava.dto.ChallengeResponseDTO;
 import es.deusto.sd.strava.facade.StravaFacade;
 import es.deusto.sd.strava.dto.AcceptanceConfirmationDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -90,9 +92,13 @@ public class ChallengeController {
     public ResponseEntity<?> getActiveChallenges(
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
+            @Parameter(name = "sport", description = "Sport type filter (optional)")
             @RequestParam(required = false) String sport,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
+            @Parameter(name = "startDate", description = "Start date for filtering challenges (optional)", example = "2023-01-01")
+            @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @Parameter(name = "endDate", description = "End date for filtering challenges (optional)", example = "2023-12-31")
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @Parameter(name = "limit", description = "Limit for the number of challenges returned (optional)", example = "5")
             @RequestParam(required = false, defaultValue = "5") Integer limit) {
 
         String token = extractToken(authorizationHeader);
@@ -110,7 +116,8 @@ public class ChallengeController {
         return ResponseEntity.ok(challenges);
     }
 
-    @PostMapping("/{challengeId}/accept")
+
+    @PostMapping("/accepted")
     @Operation(
         summary = "Accept Challenge",
         description = "Allows the user to accept a challenge by its ID.",
@@ -125,7 +132,7 @@ public class ChallengeController {
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "challengeId", description = "ID of the challenge to accept", required = true)
-            @PathVariable String challengeId) {
+            @RequestParam String challengeId) {
 
         String token = extractToken(authorizationHeader);
         if (token == null) {
