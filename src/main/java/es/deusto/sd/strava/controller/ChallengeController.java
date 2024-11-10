@@ -152,4 +152,41 @@ public class ChallengeController {
                 return new ResponseEntity<>(confirmation, HttpStatus.BAD_REQUEST);
         }
     }
+    
+    @GetMapping("/accepted")
+    @Operation(
+		summary = "Get accepted challenges", 
+		description = "Retrieve the list of challenges that the authenticated user has accepted.",
+		responses = {
+	            @ApiResponse(responseCode = "200", description = "OK: Accepted challenges retrieved successfully"),
+	            @ApiResponse(responseCode = "204", description = "Not content: No accepted challenges found"),
+	            @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"), }
+		)
+    public ResponseEntity<?> getAcceptedChallenges(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
+        String token = extractToken(authorizationHeader);
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("status", "Unauthorized", "message", "Invalid or missing Authorization token"));
+        }
+        List<ChallengeResponseDTO> acceptedChallenges = facade.getAcceptedChallenges(token);
+        if (acceptedChallenges.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.ok(acceptedChallenges);
+    }
+    
+    @GetMapping("/status")
+    @Operation(
+    		summary = "Get challenge status", 
+    		description = "Retrieve the status of all challenges that the authenticated user is participating in.", 
+			responses = {
+					@ApiResponse(responseCode = "200", description = "OK: Challenge status retrieved successfully"),
+					@ApiResponse(responseCode = "204", description = "No content: No challenge progress found"),
+					@ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"), }
+    		)
+    public ResponseEntity<?> getChallengeStatus(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
+        String token = extractToken(authorizationHeader);
+        ResponseEntity<?> response = (ResponseEntity<?>) facade.getChallengeStatus(token, null);
+        return response;
+    }
 }
