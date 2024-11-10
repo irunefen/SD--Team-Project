@@ -1,16 +1,18 @@
 package es.deusto.sd.strava.dto;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class TrainingSessionDTO {
     private String title;
     private String sport;
     private Float distance; // km
     private LocalDate startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime startTime;
-    private Duration duration;
+    private Integer duration; 
 
     public TrainingSessionDTO() {}
 
@@ -54,11 +56,11 @@ public class TrainingSessionDTO {
 		this.startTime = startTime;
 	}
 
-	public Duration getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(Duration duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 

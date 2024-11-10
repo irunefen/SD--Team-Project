@@ -34,6 +34,7 @@ public class AuthController {
         description = "Authenticates a user and provides an authentication token if successful.",
         responses = {
             @ApiResponse(responseCode = "200", description = "OK: User authenticated successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided"),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid credentials")
         }
     )

@@ -12,6 +12,7 @@ import es.deusto.sd.strava.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,14 +82,12 @@ public class StravaFacade {
         );
     }
 
-    public List<TrainingSessionResponseDTO> queryTrainingSessions(String token, String startDate, String endDate) {
+    public List<TrainingSessionResponseDTO> queryTrainingSessions(String token, LocalDate startDate, LocalDate endDate) {
         User user = authService.validateToken(token);
         if (user == null) {
             return null;
         }
-        java.time.LocalDate start = (startDate != null) ? java.time.LocalDate.parse(startDate) : null;
-        java.time.LocalDate end = (endDate != null) ? java.time.LocalDate.parse(endDate) : null;
-        return trainingSessionService.retrieveTrainingSessions(user, start, end);
+        return trainingSessionService.retrieveTrainingSessions(user, startDate, endDate);
     }
 
     public ChallengeDetailsDTO setupChallenge(String token, ChallengeRegistrationDTO dto) {

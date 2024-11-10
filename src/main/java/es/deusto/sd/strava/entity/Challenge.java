@@ -3,13 +3,14 @@ package es.deusto.sd.strava.entity;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Challenge {
     private String challengeId;
     private String name;
     private String sport;
     private Float targetDistance; // km, optional
-    private Duration targetTime; // optional
+    private LocalTime targetTime; // optional
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;
@@ -18,7 +19,7 @@ public class Challenge {
 
     public Challenge() {}
 
-    public Challenge(String challengeId, String name, String sport, Float targetDistance, Duration targetTime,
+    public Challenge(String challengeId, String name, String sport, Float targetDistance, LocalTime targetTime,
                      LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, String creatorId) {
         this.challengeId = challengeId;
         this.name = name;
@@ -63,11 +64,11 @@ public class Challenge {
 		this.targetDistance = targetDistance;
 	}
 
-	public Duration getTargetTime() {
+	public LocalTime getTargetTime() {
 		return targetTime;
 	}
 
-	public void setTargetTime(Duration targetTime) {
+	public void setTargetTime(LocalTime targetTime) {
 		this.targetTime = targetTime;
 	}
 

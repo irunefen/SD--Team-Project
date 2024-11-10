@@ -121,14 +121,14 @@ public class ChallengeService {
                         if (challenge.getTargetDistance() != null) {
                             return session.getDistance();
                         } else if (challenge.getTargetTime() != null) {
-                            return (float) session.getDuration().toMinutes();
+                            return (float) session.getDuration();
                         }
                         return 0f;
                     })
                     .reduce(0f, Float::sum);
 
             float target = (challenge.getTargetDistance() != null) ? challenge.getTargetDistance() :
-                    (challenge.getTargetTime() != null) ? (float) challenge.getTargetTime().toMinutes() : 1f;
+                    (challenge.getTargetTime() != null) ? (float) challenge.getTargetTime().getSecond() : 1f;
 
             float percentage = Math.min((total / target) * 100, 100);
 

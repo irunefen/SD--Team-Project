@@ -1,15 +1,15 @@
 package es.deusto.sd.strava.dto;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class ChallengeDetailsDTO {
     private String challengeId;
     private String name;
     private String sport;
     private Float targetDistance;
-    private Duration targetTime;
+    private LocalTime targetTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;
@@ -17,7 +17,7 @@ public class ChallengeDetailsDTO {
     public ChallengeDetailsDTO() {}
 
     public ChallengeDetailsDTO(String challengeId, String name, String sport, Float targetDistance,
-                               Duration targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
+    		LocalTime targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
         this.challengeId = challengeId;
         this.name = name;
         this.sport = sport;
@@ -60,11 +60,11 @@ public class ChallengeDetailsDTO {
 		this.targetDistance = targetDistance;
 	}
 
-	public Duration getTargetTime() {
+	public LocalTime getTargetTime() {
 		return targetTime;
 	}
 
-	public void setTargetTime(Duration targetTime) {
+	public void setTargetTime(LocalTime targetTime) {
 		this.targetTime = targetTime;
 	}
 

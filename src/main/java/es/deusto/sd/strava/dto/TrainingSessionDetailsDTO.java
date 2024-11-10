@@ -12,14 +12,14 @@ public class TrainingSessionDetailsDTO {
     private Float distance;
     private LocalDate startDate;
     private LocalTime startTime;
-    private Duration duration;
+    private Integer duration;
     private LocalDateTime createdAt;
 
 
     public TrainingSessionDetailsDTO() {}
 
     public TrainingSessionDetailsDTO(String sessionId, String title, String sport, Float distance,
-                                     LocalDate startDate, LocalTime startTime, Duration duration, LocalDateTime createdAt) {
+                                     LocalDate startDate, LocalTime startTime, Integer duration, LocalDateTime createdAt) {
         this.sessionId = sessionId;
         this.title = title;
         this.sport = sport;
@@ -78,11 +78,11 @@ public class TrainingSessionDetailsDTO {
 		this.startTime = startTime;
 	}
 
-	public Duration getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(Duration duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 

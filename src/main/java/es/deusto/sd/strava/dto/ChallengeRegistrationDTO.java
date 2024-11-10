@@ -1,17 +1,17 @@
 package es.deusto.sd.strava.dto;
 
-import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class ChallengeRegistrationDTO {
     private String name;
     private String sport;
     private Float targetDistance; // Optional
-    private Duration targetTime; // Optional
+    private LocalTime targetTime; // Optional
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public ChallengeRegistrationDTO(String name, String sport, Float targetDistance, Duration targetTime,
+    public ChallengeRegistrationDTO(String name, String sport, Float targetDistance, LocalTime targetTime,
 			LocalDate startDate, LocalDate endDate) {
 		super();
 		this.name = name;
@@ -56,12 +56,12 @@ public class ChallengeRegistrationDTO {
 	}
 
 
-	public Duration getTargetTime() {
+	public LocalTime getTargetTime() {
 		return targetTime;
 	}
 
 
-	public void setTargetTime(Duration targetTime) {
+	public void setTargetTime(LocalTime targetTime) {
 		this.targetTime = targetTime;
 	}
 

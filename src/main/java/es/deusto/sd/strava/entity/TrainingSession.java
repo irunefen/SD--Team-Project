@@ -14,14 +14,14 @@ public class TrainingSession {
     private float distance; // km
     private LocalDate startDate;
     private LocalTime startTime;
-    private Duration duration;
+    private Integer duration; //seconds
     private LocalDateTime createdAt;
 
 
     public TrainingSession() {}
 
     public TrainingSession(String sessionId, String userId, String title, String sport, float distance,
-                           LocalDate startDate, LocalTime startTime, Duration duration, LocalDateTime createdAt) {
+                           LocalDate startDate, LocalTime startTime, Integer duration, LocalDateTime createdAt) {
         this.sessionId = sessionId;
         this.userId = userId;
         this.title = title;
@@ -89,11 +89,11 @@ public class TrainingSession {
 		this.startTime = startTime;
 	}
 
-	public Duration getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(Duration duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 

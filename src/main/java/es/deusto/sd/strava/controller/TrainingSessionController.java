@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +46,7 @@ public class TrainingSessionController {
             @RequestBody TrainingSessionDTO dto) {
 
         String token = extractToken(authorizationHeader);
+
         if (token == null) {
             return new ResponseEntity<>(
                     Map.of("status", "Unauthorized", "message", "Invalid token."),
@@ -76,9 +79,9 @@ public class TrainingSessionController {
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "startDate", description = "Start date for filtering sessions (optional)", example = "2023-01-01")
-            @RequestParam(required = false) String startDate,
+            @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(name = "endDate", description = "End date for filtering sessions (optional)", example = "2023-12-31")
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
         String token = extractToken(authorizationHeader);
         if (token == null) {
