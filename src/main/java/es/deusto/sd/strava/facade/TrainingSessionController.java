@@ -2,7 +2,6 @@ package es.deusto.sd.strava.facade;
 
 
 import es.deusto.sd.strava.dto.TrainingSessionDTO;
-import es.deusto.sd.strava.dto.TrainingSessionDetailsDTO;
 import es.deusto.sd.strava.dto.TrainingSessionResponseDTO;
 import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
@@ -53,7 +52,7 @@ public class TrainingSessionController {
 
         TrainingSession session = trainingSessionService.addTrainingSession(dto, user);
         
-		TrainingSessionDetailsDTO sessionDetails = new TrainingSessionDetailsDTO(
+		TrainingSessionResponseDTO sessionDetails = new TrainingSessionResponseDTO(
 				session.getSessionId(), 
 				session.getTitle(),
 				session.getSport(), 
