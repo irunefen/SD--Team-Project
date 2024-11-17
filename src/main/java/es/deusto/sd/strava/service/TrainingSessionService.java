@@ -1,7 +1,6 @@
 package es.deusto.sd.strava.service;
 
 import es.deusto.sd.strava.dto.TrainingSessionDTO;
-import es.deusto.sd.strava.dto.TrainingSessionResponseDTO;
 import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing training sessions.
@@ -55,7 +53,7 @@ public class TrainingSessionService {
      * @param endDate   End date (optional).
      * @return Session list.
      */
-    public List<TrainingSessionResponseDTO> retrieveTrainingSessions(User user, LocalDate startDate, LocalDate endDate) {
+    public List<TrainingSession> getTrainingSessions(User user, LocalDate startDate, LocalDate endDate) {
         List<TrainingSession> sessions = sessionsByUserId.getOrDefault(user.getUserId(), Collections.emptyList());
 
         return sessions.stream()
@@ -65,16 +63,6 @@ public class TrainingSessionService {
                     return afterStart && beforeEnd;
                 })
                 .sorted(Comparator.comparing(TrainingSession::getStartDate).reversed())
-                .map(session -> new TrainingSessionResponseDTO(
-                        session.getSessionId(),
-                        session.getTitle(),
-                        session.getSport(),
-                        session.getDistance(),
-                        session.getStartDate(),
-                        session.getStartTime(),
-                        session.getDuration(),
-                        session.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -1,20 +1,24 @@
-package es.deusto.sd.strava.controller;
+package es.deusto.sd.strava.facade;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import es.deusto.sd.strava.dto.ChallengeDetailsDTO;
 import es.deusto.sd.strava.dto.ChallengeRegistrationDTO;
 import es.deusto.sd.strava.dto.ChallengeResponseDTO;
-import es.deusto.sd.strava.facade.StravaFacade;
-import es.deusto.sd.strava.dto.AcceptanceConfirmationDTO;
+import es.deusto.sd.strava.entity.Challenge;
+import es.deusto.sd.strava.entity.ChallengeProgress;
+import es.deusto.sd.strava.entity.TrainingSession;
+import es.deusto.sd.strava.entity.User;
+import es.deusto.sd.strava.service.AuthService;
+import es.deusto.sd.strava.service.ChallengeService;
+import es.deusto.sd.strava.service.TrainingSessionService;
+import es.deusto.sd.strava.util.TokenUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,26 +28,16 @@ import java.util.Map;
 @RequestMapping("/challenges")
 @Tag(name = "Challenges", description = "Operations for managing user challenges")
 public class ChallengeController {
-
-    private final StravaFacade facade;
-
-    @Autowired
-    public ChallengeController(StravaFacade facade) {
-        this.facade = facade;
-    }
-
-    /**
-     * Extract the token 
-     *
-     * @param authorizationHeader Token header
-     * @return Extracted token or null if not found
-     */
-    private String extractToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        return null;
-    }
+	
+    private final ChallengeService challengeService;
+    private final AuthService authService;
+    private final TrainingSessionService trainingSessionService;
+    
+	public ChallengeController(ChallengeService challengeService, AuthService authService, TrainingSessionService trainingSessionService) {
+		this.challengeService = challengeService;
+		this.authService = authService;
+		this.trainingSessionService = trainingSessionService;
+	}
 
     @PostMapping
     @Operation(
@@ -52,31 +46,24 @@ public class ChallengeController {
         responses = {
             @ApiResponse(responseCode = "201", description = "Created: Challenge set up successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
-            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided")
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided"),
         }
     )
     public ResponseEntity<?> setupChallenge(
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestBody ChallengeRegistrationDTO dto) {
-
-        String token = extractToken(authorizationHeader);
-        if (token == null) {
-            return new ResponseEntity<>(
-                Map.of("status", "Unauthorized", "message", "Invalid token."),
-                HttpStatus.UNAUTHORIZED
-            );
-        }
-
-        ChallengeDetailsDTO challenge = facade.setupChallenge(token, dto);
-        if (challenge != null) {
-            return new ResponseEntity<>(challenge, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(
-                Map.of("status", "Bad Request", "message", "Invalid data."),
-                HttpStatus.BAD_REQUEST
-            );
-        }
+            @RequestBody ChallengeRegistrationDTO dto) {        
+        
+        User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
+		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
+		if (dto.getTargetDistance() == null && dto.getTargetTime() == null) 
+			return new ResponseEntity<>(Map.of("message", "The challenge cannot contain both target distance and target time"), HttpStatus.BAD_REQUEST);
+	
+        Challenge challenge = challengeService.createChallenge(dto, user);
+        if (challenge == null) return new ResponseEntity<>(Map.of("message", "Invalid data."), HttpStatus.BAD_REQUEST);
+        
+        return new ResponseEntity<>(challenge, HttpStatus.CREATED);
     }
 
     @GetMapping("/active")
@@ -93,26 +80,34 @@ public class ChallengeController {
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "sport", description = "Sport type filter (optional)")
-            @RequestParam(required = false) String sport,
+            @RequestParam(name = "sport", required = false) String sport,
             @Parameter(name = "startDate", description = "Start date for filtering challenges (optional)", example = "2023-01-01")
             @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(name = "endDate", description = "End date for filtering challenges (optional)", example = "2023-12-31")
             @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @Parameter(name = "limit", description = "Limit for the number of challenges returned (optional)", example = "5")
-            @RequestParam(required = false, defaultValue = "5") Integer limit) {
+            @RequestParam(name = "limit", required = false, defaultValue = "5") Integer limit) {
 
-        String token = extractToken(authorizationHeader);
-        if (token == null) {
-            return new ResponseEntity<>(
-                Map.of("status", "Unauthorized", "message", "Invalid token."),
-                HttpStatus.UNAUTHORIZED
-            );
-        }
-
-        List<ChallengeResponseDTO> challenges = facade.getActiveChallenges(token, sport, startDate, endDate, limit);
+    	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
+		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
+        List<ChallengeResponseDTO> challenges = challengeService.getActiveChallenges(sport, startDate, endDate, limit).stream()
+        		.map(ch -> new ChallengeResponseDTO(
+                        ch.getChallengeId(),
+                        ch.getName(),
+                        ch.getSport(),
+                        ch.getTargetDistance(),
+                        ch.getTargetTime(),
+                        ch.getStartDate(),
+                        ch.getEndDate(),
+                        ch.getCreatedAt()
+                ))
+                .toList();
+        
         if (challenges == null || challenges.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        
         return ResponseEntity.ok(challenges);
     }
 
@@ -132,25 +127,16 @@ public class ChallengeController {
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "challengeId", description = "ID of the challenge to accept", required = true)
-            @RequestParam String challengeId) {
+            @RequestParam("challengeId") String challengeId) {
 
-        String token = extractToken(authorizationHeader);
-        if (token == null) {
-            return new ResponseEntity<>(
-                Map.of("status", "Unauthorized", "message", "Invalid token."),
-                HttpStatus.UNAUTHORIZED
-            );
-        }
+    	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
+		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        AcceptanceConfirmationDTO confirmation = facade.acceptChallenge(token, challengeId);
-        switch (confirmation.getStatus()) {
-            case "OK":
-                return ResponseEntity.ok(confirmation);
-            case "Not Found":
-                return new ResponseEntity<>(confirmation, HttpStatus.NOT_FOUND);
-            default:
-                return new ResponseEntity<>(confirmation, HttpStatus.BAD_REQUEST);
-        }
+        boolean success = challengeService.registerChallengeAcceptance(user, challengeId);
+        
+		if (!success) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		
+		return new ResponseEntity<>(HttpStatus.OK);       
     }
     
     @GetMapping("/accepted")
@@ -163,15 +149,23 @@ public class ChallengeController {
 	            @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"), }
 		)
     public ResponseEntity<?> getAcceptedChallenges(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
-        String token = extractToken(authorizationHeader);
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("status", "Unauthorized", "message", "Invalid or missing Authorization token"));
-        }
-        List<ChallengeResponseDTO> acceptedChallenges = facade.getAcceptedChallenges(token);
-        if (acceptedChallenges.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+    	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
+		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
+		List<ChallengeResponseDTO> acceptedChallenges = challengeService.getUserAcceptedChallenges(user).stream()
+				.map(ch -> new ChallengeResponseDTO(
+						ch.getChallengeId(), 
+						ch.getName(), 
+						ch.getSport(),
+						ch.getTargetDistance(), 
+						ch.getTargetTime(), 
+						ch.getStartDate(), 
+						ch.getEndDate(),
+						ch.getCreatedAt()))
+				.toList();
+		
+        if (acceptedChallenges.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        
         return ResponseEntity.ok(acceptedChallenges);
     }
     
@@ -185,8 +179,15 @@ public class ChallengeController {
 					@ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"), }
     		)
     public ResponseEntity<?> getChallengeStatus(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
-        String token = extractToken(authorizationHeader);
-        ResponseEntity<?> response = (ResponseEntity<?>) facade.getChallengeStatus(token, null);
-        return response;
+    	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
+		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
+		List<Challenge> activeChallenges = challengeService.getUserAcceptedActiveChallenges(user);
+		if (activeChallenges.isEmpty())	return new ResponseEntity<>(HttpStatus.NO_CONTENT);		
+		
+		List<TrainingSession> trainingSessions = trainingSessionService.getTrainingSessions(user, null, null);		
+        List<ChallengeProgress> challengeProgresses = challengeService.calculateChallengeProgresses(user, trainingSessions);
+        
+        return ResponseEntity.ok(challengeProgresses);
     }
 }

@@ -1,9 +1,9 @@
 package es.deusto.sd.strava.entity;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
 
 public class Challenge {
     private String challengeId;

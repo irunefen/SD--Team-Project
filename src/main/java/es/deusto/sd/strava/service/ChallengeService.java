@@ -3,15 +3,14 @@ package es.deusto.sd.strava.service;
 import es.deusto.sd.strava.dto.ChallengeRegistrationDTO;
 import es.deusto.sd.strava.entity.Challenge;
 import es.deusto.sd.strava.entity.ChallengeProgress;
+import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
 
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing challenges.
@@ -57,10 +56,10 @@ public class ChallengeService {
      * @param limit     Result limit.
      * @return List of active challenges.
      */
-    public List<Challenge> fetchActiveChallenges(String sport, LocalDate startDate, LocalDate endDate, int limit) {
+    public List<Challenge> getActiveChallenges(String sport, LocalDate startDate, LocalDate endDate, int limit) {
         LocalDate today = LocalDate.now();
         return challengesById.values().stream()
-                .filter(challenge -> challenge.getEndDate().isAfter(today))
+                .filter(challenge -> !challenge.getEndDate().isBefore(today))
                 .filter(challenge -> (sport == null || challenge.getSport().equalsIgnoreCase(sport)))
                 .filter(challenge -> {
                     boolean afterStart = (startDate == null) || !challenge.getStartDate().isBefore(startDate);
@@ -69,7 +68,7 @@ public class ChallengeService {
                 })
                 .sorted(Comparator.comparing(Challenge::getCreatedAt).reversed())
                 .limit(limit)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -98,7 +97,24 @@ public class ChallengeService {
         return challengeIds.stream()
                 .map(challengesById::get)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
+    }
+    
+    /**
+     * Retrieves the active challenges accepted by a user.
+     *
+     * @param user User.
+     * @return List of active accepted challenges.
+     */
+    public List<Challenge> getUserAcceptedActiveChallenges(User user) {
+        Set<String> challengeIds = acceptedChallengesByUserId.getOrDefault(user.getUserId(), Collections.emptySet());
+        
+        LocalDate today = LocalDate.now();
+        return challengeIds.stream()
+                .map(challengesById::get)
+                .filter(Objects::nonNull)
+                .filter(challenge -> !challenge.getEndDate().isBefore(today))
+                .toList();       
     }
 
     /**
@@ -108,15 +124,18 @@ public class ChallengeService {
      * @param trainingSessions User training sessions
      * @return List of challenge progresses of the user
      */
-    public List<ChallengeProgress> calculateChallengeProgress(User user, List<es.deusto.sd.strava.entity.TrainingSession> trainingSessions) {
-        List<Challenge> acceptedChallenges = getUserAcceptedChallenges(user);
+    public List<ChallengeProgress> calculateChallengeProgresses(User user, List<TrainingSession> trainingSessions) {
+        List<Challenge> activeAcceptedChallenges = getUserAcceptedActiveChallenges(user);
         List<ChallengeProgress> progresses = new ArrayList<>();
 
-        for (Challenge challenge : acceptedChallenges) {
+        for (Challenge challenge : activeAcceptedChallenges) {
             float total = trainingSessions.stream()
-                    .filter(session -> !session.getStartDate().isBefore(challenge.getStartDate()) &&
-                            !session.getStartDate().isAfter(challenge.getEndDate()) &&
-                            session.getSport().equalsIgnoreCase(challenge.getSport()))
+            		.filter(session -> session.getSport().equalsIgnoreCase(challenge.getSport()))
+                    .filter(session -> {
+	                    boolean afterStart = !session.getStartDate().isBefore(challenge.getStartDate());
+	                    boolean beforeEnd = !session.getStartDate().isAfter(challenge.getEndDate());
+	                    return afterStart && beforeEnd;
+                    })
                     .map(session -> {
                         if (challenge.getTargetDistance() != null) {
                             return session.getDistance();

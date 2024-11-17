@@ -29,12 +29,13 @@ public class AuthService {
     }
 
     /**
-     * Validates a token
+     * Retrieves the associated user.
      *
      * @param token Token to validate
-     * @return Asociated user if token is valid, null otherwise.
+     * @return Associated user if token is valid, null otherwise.
      */
-    public User validateToken(String token) {
+    public User getUserFromToken(String token) {
+    	if (token == null) return null;
         return tokens.get(token);
     }
 
