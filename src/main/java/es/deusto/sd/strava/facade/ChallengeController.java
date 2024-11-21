@@ -57,7 +57,7 @@ public class ChallengeController {
         User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
 		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		
-		if (dto.getTargetDistance() == null && dto.getTargetTime() == null) 
+		if (dto.getTargetDistance() != null && dto.getTargetTime() != null) 
 			return new ResponseEntity<>(Map.of("message", "The challenge cannot contain both target distance and target time"), HttpStatus.BAD_REQUEST);
 	
         Challenge challenge = challengeService.createChallenge(dto, user);
