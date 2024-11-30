@@ -38,6 +38,9 @@ public class AuthController {
 			@RequestParam(name = "authProviderName") String authProviderName,
 			@RequestBody LoginCredentialsDTO dto) {
 		
+		if (dto.getEmail() == null) return new ResponseEntity<>(Map.of("message", "Email not provided"), HttpStatus.BAD_REQUEST);
+		if (dto.getPassword() == null) return new ResponseEntity<>(Map.of("message", "Password not provided"), HttpStatus.BAD_REQUEST);
+		
 		User user = userService.authenticateUser(dto.getEmail(), dto.getPassword(), authProviderName);
         if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         

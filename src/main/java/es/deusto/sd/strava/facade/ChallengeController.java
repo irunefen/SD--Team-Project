@@ -45,8 +45,8 @@ public class ChallengeController {
         description = "Allows the user to set up a new challenge.",
         responses = {
             @ApiResponse(responseCode = "201", description = "Created: Challenge set up successfully"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
             @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
         }
     )
     public ResponseEntity<?> setupChallenge(
@@ -120,7 +120,6 @@ public class ChallengeController {
             @ApiResponse(responseCode = "200", description = "OK: Challenge accepted successfully"),
             @ApiResponse(responseCode = "404", description = "Not Found: Challenge not found"),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
-            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid request")
         }
     )
     public ResponseEntity<?> acceptChallenge(
