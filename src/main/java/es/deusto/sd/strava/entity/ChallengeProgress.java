@@ -2,26 +2,26 @@ package es.deusto.sd.strava.entity;
 
 
 public class ChallengeProgress {
-    private String challengeId;
+    private Long challengeId;
     private Float currentProgress;
     private Float percentageAchieved;
-    private String userId;
+    private Long userId;
 
 
     public ChallengeProgress() {}
 
-    public ChallengeProgress(String challengeId, Float currentProgress, Float percentageAchieved, String userId) {
+    public ChallengeProgress(Long challengeId, Float currentProgress, Float percentageAchieved, Long userId) {
         this.challengeId = challengeId;
         this.currentProgress = currentProgress;
         this.percentageAchieved = percentageAchieved;
         this.userId = userId;
     }
 
-	public String getChallengeId() {
+	public Long getChallengeId() {
 		return challengeId;
 	}
 
-	public void setChallengeId(String challengeId) {
+	public void setChallengeId(Long challengeId) {
 		this.challengeId = challengeId;
 	}
 
@@ -41,11 +41,11 @@ public class ChallengeProgress {
 		this.percentageAchieved = percentageAchieved;
 	}
 
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

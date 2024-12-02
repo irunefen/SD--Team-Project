@@ -2,6 +2,7 @@ package es.deusto.sd.strava.facade;
 
 import es.deusto.sd.strava.dto.LoginCredentialsDTO;
 import es.deusto.sd.strava.entity.User;
+import es.deusto.sd.strava.external.AuthServiceProvider;
 import es.deusto.sd.strava.service.AuthService;
 import es.deusto.sd.strava.service.UserService;
 import es.deusto.sd.strava.util.TokenUtils;
@@ -40,9 +41,11 @@ public class AuthController {
 		
 		if (dto.getEmail() == null) return new ResponseEntity<>(Map.of("message", "Email not provided"), HttpStatus.BAD_REQUEST);
 		if (dto.getPassword() == null) return new ResponseEntity<>(Map.of("message", "Password not provided"), HttpStatus.BAD_REQUEST);
-		
-		User user = userService.authenticateUser(dto.getEmail(), dto.getPassword(), authProviderName);
-        if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	
+		boolean isAuthorized = authService.authenticateUser(dto.getEmail(), dto.getPassword(), AuthServiceProvider.valueOf(authProviderName.toUpperCase()));
+        if (!isAuthorized) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        User user = userService.getUserByEmail(dto.getEmail());
         
         String token = authService.generateToken(user);
         return new ResponseEntity<>(Map.of("token", token), HttpStatus.OK);

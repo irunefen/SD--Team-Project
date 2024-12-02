@@ -1,5 +1,6 @@
 package es.deusto.sd.strava.service;
 
+import es.deusto.sd.strava.dao.TrainingSessionRepository;
 import es.deusto.sd.strava.dto.TrainingSessionDTO;
 import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
@@ -13,11 +14,12 @@ import java.util.*;
  * Service for managing training sessions.
  */
 @Service
-public class TrainingSessionService {
-
-    // Simulated database
-    private Map<String, TrainingSession> sessionsById = new HashMap<>();
-    private Map<String, List<TrainingSession>> sessionsByUserId = new HashMap<>();
+public class TrainingSessionService {    
+    private final TrainingSessionRepository trainingSessionRepository;
+    
+    public TrainingSessionService(TrainingSessionRepository trainingSessionRepository) {
+    	this.trainingSessionRepository = trainingSessionRepository;
+    }
 
     /**
      * Adds a new training session
@@ -27,10 +29,8 @@ public class TrainingSessionService {
      * @return Session created.
      */
     public TrainingSession addTrainingSession(TrainingSessionDTO dto, User user) {
-        String sessionId = UUID.randomUUID().toString();
         TrainingSession session = new TrainingSession(
-                sessionId,
-                user.getUserId(),
+                user.getId(),
                 dto.getTitle(),
                 dto.getSport(),
                 dto.getDistance(),
@@ -40,8 +40,7 @@ public class TrainingSessionService {
                 LocalDateTime.now()
         );
 
-        sessionsById.put(sessionId, session);
-        sessionsByUserId.computeIfAbsent(user.getUserId(), k -> new ArrayList<>()).add(session);
+        trainingSessionRepository.save(session);
         return session;
     }
 
@@ -54,7 +53,7 @@ public class TrainingSessionService {
      * @return Session list.
      */
     public List<TrainingSession> getTrainingSessions(User user, LocalDate startDate, LocalDate endDate) {
-        List<TrainingSession> sessions = sessionsByUserId.getOrDefault(user.getUserId(), Collections.emptyList());
+        List<TrainingSession> sessions = trainingSessionRepository.findByUserId(user.getId());
 
         return sessions.stream()
                 .filter(session -> {

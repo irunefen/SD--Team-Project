@@ -3,25 +3,50 @@ package es.deusto.sd.strava.entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.time.LocalDateTime;
 
+@Entity
 public class TrainingSession {
-    private String sessionId;
-    private String userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
+	@Column(name = "user_id", nullable = false)
+    private Long userId;
+	
+	@Column(name = "title", nullable = false)
     private String title;
+	
+	@Column(name = "sport", nullable = false)
     private String sport;
+	
+	@Column(name = "distance", nullable = false)
     private float distance; // km
+	
+	@Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+	
+	@Column(name = "start_time", nullable = false)
     private LocalTime startTime;
+	
+	@Column(name = "duration", nullable = false)
     private Integer duration; //seconds
+	
+	@Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
 
     public TrainingSession() {}
 
-    public TrainingSession(String sessionId, String userId, String title, String sport, float distance,
+    public TrainingSession(Long userId, String title, String sport, float distance,
                            LocalDate startDate, LocalTime startTime, Integer duration, LocalDateTime createdAt) {
-        this.sessionId = sessionId;
         this.userId = userId;
         this.title = title;
         this.sport = sport;
@@ -32,19 +57,15 @@ public class TrainingSession {
         this.createdAt = createdAt;
     }
 
-	public String getSessionId() {
-		return sessionId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

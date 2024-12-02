@@ -53,7 +53,7 @@ public class TrainingSessionController {
         TrainingSession session = trainingSessionService.addTrainingSession(dto, user);
         
 		TrainingSessionResponseDTO sessionDetails = new TrainingSessionResponseDTO(
-				session.getSessionId(), 
+				session.getId(), 
 				session.getTitle(),
 				session.getSport(), 
 				session.getDistance(), 
@@ -89,7 +89,7 @@ public class TrainingSessionController {
 
         List<TrainingSessionResponseDTO> sessions = trainingSessionService.getTrainingSessions(user, startDate, endDate).stream()
         		.map(session -> new TrainingSessionResponseDTO(
-		                session.getSessionId(),
+		                session.getId(),
 		                session.getTitle(),
 		                session.getSport(),
 		                session.getDistance(),

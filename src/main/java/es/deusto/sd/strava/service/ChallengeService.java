@@ -1,5 +1,7 @@
 package es.deusto.sd.strava.service;
 
+import es.deusto.sd.strava.dao.ChallengeRepository;
+import es.deusto.sd.strava.dao.UserRepository;
 import es.deusto.sd.strava.dto.ChallengeRegistrationDTO;
 import es.deusto.sd.strava.entity.Challenge;
 import es.deusto.sd.strava.entity.ChallengeProgress;
@@ -16,11 +18,14 @@ import java.util.*;
  * Service for managing challenges.
  */
 @Service
-public class ChallengeService {
-
-    // Simulated database
-    private Map<String, Challenge> challengesById = new HashMap<>();
-    private Map<String, Set<String>> acceptedChallengesByUserId = new HashMap<>();
+public class ChallengeService {    
+    private final ChallengeRepository challengeRepository;
+    private final UserRepository userRepository;
+    
+	public ChallengeService(ChallengeRepository challengeRepository, UserRepository userRepository) {
+		this.challengeRepository = challengeRepository;
+		this.userRepository = userRepository;
+	}
 
     /**
      * Create a new challenge
@@ -30,9 +35,7 @@ public class ChallengeService {
      * @return Challenge created.
      */
     public Challenge createChallenge(ChallengeRegistrationDTO dto, User user) {
-        String challengeId = UUID.randomUUID().toString();
         Challenge challenge = new Challenge(
-                challengeId,
                 dto.getName(),
                 dto.getSport(),
                 dto.getTargetDistance(),
@@ -40,10 +43,10 @@ public class ChallengeService {
                 dto.getStartDate(),
                 dto.getEndDate(),
                 LocalDateTime.now(),
-                user.getUserId()
+                user.getId()
         );
 
-        challengesById.put(challengeId, challenge);
+        challengeRepository.save(challenge);
         return challenge;
     }
 
@@ -58,7 +61,7 @@ public class ChallengeService {
      */
     public List<Challenge> getActiveChallenges(String sport, LocalDate startDate, LocalDate endDate, int limit) {
         LocalDate today = LocalDate.now();
-        return challengesById.values().stream()
+        return challengeRepository.findAll().stream()
                 .filter(challenge -> !challenge.getEndDate().isBefore(today))
                 .filter(challenge -> (sport == null || challenge.getSport().equalsIgnoreCase(sport)))
                 .filter(challenge -> {
@@ -78,11 +81,11 @@ public class ChallengeService {
      * @param challengeId  Challenge ID.
      * @return true if it registered successfully, false otherwise.
      */
-    public boolean registerChallengeAcceptance(User user, String challengeId) {
-        if (!challengesById.containsKey(challengeId)) {
+    public boolean registerChallengeAcceptance(User user, Long challengeId) {
+        if (!challengeRepository.existsById(challengeId)) {
             return false;
         }
-        acceptedChallengesByUserId.computeIfAbsent(user.getUserId(), k -> new HashSet<>()).add(challengeId);
+        user.getAcceptedChallenges().add(challengeRepository.findById(challengeId).get());
         return true;
     }
 
@@ -93,11 +96,7 @@ public class ChallengeService {
      * @return List of accepted challenges.
      */
     public List<Challenge> getUserAcceptedChallenges(User user) {
-        Set<String> challengeIds = acceptedChallengesByUserId.getOrDefault(user.getUserId(), Collections.emptySet());
-        return challengeIds.stream()
-                .map(challengesById::get)
-                .filter(Objects::nonNull)
-                .toList();
+        return user.getAcceptedChallenges();
     }
     
     /**
@@ -106,13 +105,9 @@ public class ChallengeService {
      * @param user User.
      * @return List of active accepted challenges.
      */
-    public List<Challenge> getUserAcceptedActiveChallenges(User user) {
-        Set<String> challengeIds = acceptedChallengesByUserId.getOrDefault(user.getUserId(), Collections.emptySet());
-        
+    public List<Challenge> getUserAcceptedActiveChallenges(User user) {        
         LocalDate today = LocalDate.now();
-        return challengeIds.stream()
-                .map(challengesById::get)
-                .filter(Objects::nonNull)
+        return user.getAcceptedChallenges().stream()
                 .filter(challenge -> !challenge.getEndDate().isBefore(today))
                 .toList();       
     }
@@ -152,10 +147,10 @@ public class ChallengeService {
             float percentage = Math.min((total / target) * 100, 100);
 
             ChallengeProgress progress = new ChallengeProgress(
-                    challenge.getChallengeId(),
+                    challenge.getId(),
                     total,
                     percentage,
-                    user.getUserId()
+                    user.getId()
             );
             progresses.add(progress);
         }

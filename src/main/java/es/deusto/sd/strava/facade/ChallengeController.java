@@ -93,7 +93,7 @@ public class ChallengeController {
 		
         List<ChallengeResponseDTO> challenges = challengeService.getActiveChallenges(sport, startDate, endDate, limit).stream()
         		.map(ch -> new ChallengeResponseDTO(
-                        ch.getChallengeId(),
+                        ch.getId(),
                         ch.getName(),
                         ch.getSport(),
                         ch.getTargetDistance(),
@@ -131,7 +131,7 @@ public class ChallengeController {
     	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
 		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        boolean success = challengeService.registerChallengeAcceptance(user, challengeId);
+        boolean success = challengeService.registerChallengeAcceptance(user, Long.parseLong(challengeId));
         
 		if (!success) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		
@@ -153,7 +153,7 @@ public class ChallengeController {
 		
 		List<ChallengeResponseDTO> acceptedChallenges = challengeService.getUserAcceptedChallenges(user).stream()
 				.map(ch -> new ChallengeResponseDTO(
-						ch.getChallengeId(), 
+						ch.getId(), 
 						ch.getName(), 
 						ch.getSport(),
 						ch.getTargetDistance(), 

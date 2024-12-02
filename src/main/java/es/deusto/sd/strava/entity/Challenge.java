@@ -4,24 +4,48 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
+@Entity
 public class Challenge {
-    private String challengeId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
+	@Column(nullable = false)
     private String name;
+	
+	@Column(nullable = false)
     private String sport;
+    
+	@Column(name = "target_distance")
     private Float targetDistance; // km, optional
+    
+	@Column(name = "target_time")
     private LocalTime targetTime; // optional
+    
+	@Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+    
+	@Column(name = "end_date", nullable = false)
     private LocalDate endDate;
+    
+	@Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-    private String creatorId;
+    
+	@Column(name = "creator_id", nullable = false)
+    private Long creatorId;
 
 
     public Challenge() {}
 
-    public Challenge(String challengeId, String name, String sport, Float targetDistance, LocalTime targetTime,
-                     LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, String creatorId) {
-        this.challengeId = challengeId;
+    public Challenge(String name, String sport, Float targetDistance, LocalTime targetTime,
+                     LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, Long creatorId) {
         this.name = name;
         this.sport = sport;
         this.targetDistance = targetDistance;
@@ -32,12 +56,8 @@ public class Challenge {
         this.creatorId = creatorId;
     }
 
-	public String getChallengeId() {
-		return challengeId;
-	}
-
-	public void setChallengeId(String challengeId) {
-		this.challengeId = challengeId;
+	public Long getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -96,11 +116,11 @@ public class Challenge {
 		this.createdAt = createdAt;
 	}
 
-	public String getCreatorId() {
+	public Long getCreatorId() {
 		return creatorId;
 	}
 
-	public void setCreatorId(String creatorId) {
+	public void setCreatorId(Long creatorId) {
 		this.creatorId = creatorId;
 	}
 

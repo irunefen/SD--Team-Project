@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class ChallengeResponseDTO {
-    private String challengeId;
+    private Long challengeId;
     private String name;
     private String sport;
     private Float targetDistance;
@@ -17,7 +17,7 @@ public class ChallengeResponseDTO {
 
     public ChallengeResponseDTO() {}
 
-    public ChallengeResponseDTO(String challengeId, String name, String sport, Float targetDistance,
+    public ChallengeResponseDTO(Long challengeId, String name, String sport, Float targetDistance,
     		LocalTime targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
         this.challengeId = challengeId;
         this.name = name;
@@ -29,11 +29,11 @@ public class ChallengeResponseDTO {
         this.createdAt = createdAt;
     }
 
-	public String getChallengeId() {
+	public Long getChallengeId() {
 		return challengeId;
 	}
 
-	public void setChallengeId(String challengeId) {
+	public void setChallengeId(Long challengeId) {
 		this.challengeId = challengeId;
 	}
 

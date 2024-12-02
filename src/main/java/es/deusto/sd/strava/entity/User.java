@@ -1,24 +1,59 @@
 package es.deusto.sd.strava.entity;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "users")
 public class User {
-    private String userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+	
+	@Column(nullable = false, unique = true)
     private String email;
+	
+	@Column(nullable = false)
     private String name;
+	
+	@Column(columnDefinition = "DATE", name="birthdate")
     private LocalDate birthdate;
+	
+	@Column
     private Float weight; // kg
+	
+	@Column
     private Float height; // cm
+	
+	@Column(name = "max_heart_rate")
     private Integer maxHeartRate;
+	
+	@Column(name = "rest_heart_rate")
     private Integer restHeartRate;
-    private String authProviderName;
-
-    // Constructors, getters y setters
+	
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+			name = "user_accepted_challenges", 
+			joinColumns = @JoinColumn(name = "users_id"), 
+			inverseJoinColumns = @JoinColumn(name = "challenge_id")
+	)
+	private List<Challenge> acceptedChallenges;
 
     public User() {}
 
-    public User(String userId, String email, String name, LocalDate birthdate, Float weight, Float height,
-                Integer maxHeartRate, Integer restHeartRate, String authProviderName) {
-        this.userId = userId;
+    public User(String email, String name, LocalDate birthdate, Float weight, 
+    			Float height, Integer maxHeartRate, Integer restHeartRate) {
         this.email = email;
         this.name = name;
         this.birthdate = birthdate;
@@ -26,15 +61,27 @@ public class User {
         this.height = height;
         this.maxHeartRate = maxHeartRate;
         this.restHeartRate = restHeartRate;
-        this.authProviderName = authProviderName;
     }
-
-	public String getUserId() {
-		return userId;
+    
+	@Override
+	public int hashCode() {
+		return Objects.hash(email, id);
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		return Objects.equals(email, other.email) && Objects.equals(id, other.id);
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public String getEmail() {
@@ -92,15 +139,11 @@ public class User {
 	public void setRestHeartRate(Integer restHeartRate) {
 		this.restHeartRate = restHeartRate;
 	}
-
-	public String getAuthProviderName() {
-		return authProviderName;
+	
+	public List<Challenge> getAcceptedChallenges() {
+		return acceptedChallenges;
 	}
-
-	public void setAuthProviderName(String authProviderName) {
-		this.authProviderName = authProviderName;
-	}
-
+	
    
 }
 
