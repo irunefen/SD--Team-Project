@@ -7,11 +7,11 @@ public class ChallengeRegistrationDTO {
     private String name;
     private String sport;
     private Float targetDistance; // Optional
-    private LocalTime targetTime; // Optional
+    private Float targetTime; // Optional
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public ChallengeRegistrationDTO(String name, String sport, Float targetDistance, LocalTime targetTime,
+    public ChallengeRegistrationDTO(String name, String sport, Float targetDistance, Float targetTime,
 			LocalDate startDate, LocalDate endDate) {
 		super();
 		this.name = name;
@@ -56,12 +56,12 @@ public class ChallengeRegistrationDTO {
 	}
 
 
-	public LocalTime getTargetTime() {
+	public Float getTargetTime() {
 		return targetTime;
 	}
 
 
-	public void setTargetTime(LocalTime targetTime) {
+	public void setTargetTime(Float targetTime) {
 		this.targetTime = targetTime;
 	}
 

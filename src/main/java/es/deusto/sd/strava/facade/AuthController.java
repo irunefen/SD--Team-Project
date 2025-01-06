@@ -47,7 +47,7 @@ public class AuthController {
         
         User user = userService.getUserByEmail(dto.getEmail());
         
-        String token = authService.generateToken(user);
+        String token = authService.generateSessionToken(user.getId());
         return new ResponseEntity<>(Map.of("token", token), HttpStatus.OK);
 	}
 

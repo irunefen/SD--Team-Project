@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import es.deusto.sd.strava.dto.ChallengeRegistrationDTO;
 import es.deusto.sd.strava.dto.ChallengeResponseDTO;
 import es.deusto.sd.strava.entity.Challenge;
-import es.deusto.sd.strava.entity.ChallengeProgress;
+import es.deusto.sd.strava.entity.ChallengeStatus;
 import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
 import es.deusto.sd.strava.service.AuthService;
@@ -21,6 +21,7 @@ import es.deusto.sd.strava.service.TrainingSessionService;
 import es.deusto.sd.strava.util.TokenUtils;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class ChallengeController {
 
     @PostMapping
     @Operation(
-        summary = "Setup Challenge",
+        summary = "Create Challenge",
         description = "Allows the user to set up a new challenge.",
         responses = {
             @ApiResponse(responseCode = "201", description = "Created: Challenge set up successfully"),
@@ -49,7 +50,7 @@ public class ChallengeController {
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
         }
     )
-    public ResponseEntity<?> setupChallenge(
+    public ResponseEntity<?> createChallenge(
             @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody ChallengeRegistrationDTO dto) {        
@@ -62,6 +63,17 @@ public class ChallengeController {
 	
         Challenge challenge = challengeService.createChallenge(dto, user);
         if (challenge == null) return new ResponseEntity<>(Map.of("message", "Invalid data."), HttpStatus.BAD_REQUEST);
+        
+		ChallengeResponseDTO challengeResponse = new ChallengeResponseDTO(
+				challenge.getId(), 
+				challenge.getName(),
+				challenge.getSport(), 
+				challenge.getTargetDistance(), 
+				challenge.getTargetTime(),
+				challenge.getStartDate(), 
+				challenge.getEndDate(), 
+				challenge.getCreatedAt()
+			);
         
         return new ResponseEntity<>(challenge, HttpStatus.CREATED);
     }
@@ -152,6 +164,7 @@ public class ChallengeController {
 		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		
 		List<ChallengeResponseDTO> acceptedChallenges = challengeService.getUserAcceptedChallenges(user).stream()
+				.sorted(Comparator.comparing(Challenge::getId))
 				.map(ch -> new ChallengeResponseDTO(
 						ch.getId(), 
 						ch.getName(), 
@@ -161,6 +174,7 @@ public class ChallengeController {
 						ch.getStartDate(), 
 						ch.getEndDate(),
 						ch.getCreatedAt()))
+				
 				.toList();
 		
         if (acceptedChallenges.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -185,7 +199,7 @@ public class ChallengeController {
 		if (activeChallenges.isEmpty())	return new ResponseEntity<>(HttpStatus.NO_CONTENT);		
 		
 		List<TrainingSession> trainingSessions = trainingSessionService.getTrainingSessions(user, null, null);		
-        List<ChallengeProgress> challengeProgresses = challengeService.calculateChallengeProgresses(user, trainingSessions);
+        List<ChallengeStatus> challengeProgresses = challengeService.calculateChallengeProgresses(user, trainingSessions);
         
         return ResponseEntity.ok(challengeProgresses);
     }

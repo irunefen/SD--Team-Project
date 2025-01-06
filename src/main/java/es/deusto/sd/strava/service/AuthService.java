@@ -1,5 +1,6 @@
 package es.deusto.sd.strava.service;
 
+import es.deusto.sd.strava.dao.UserRepository;
 import es.deusto.sd.strava.entity.User;
 import es.deusto.sd.strava.external.AuthServiceGatewayFactory;
 import es.deusto.sd.strava.external.AuthServiceProvider;
@@ -18,17 +19,23 @@ import java.util.Optional;
 @Service
 public class AuthService {
 	
-    // Map of user tokens
-    private Map<String, User> tokens = new HashMap<>();
+    // Map of user tokens to user ids
+    private Map<String, Long> tokenToUserId = new HashMap<>();
     
-    /**
-     * Autenticates a user.
-     *
-     * @param email            User email
-     * @param password         Password
-     * @param authProviderName Authentication provider
-     * @return true if user is authorized, false otherwise
-     */
+    private final UserRepository userRepository;
+    
+	public AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+	}
+	
+	/**
+	 * Autenticates a user.
+	 *
+	 * @param email            User email
+	 * @param password         Password
+	 * @param authProviderName Authentication provider
+	 * @return true if user is authorized, false otherwise
+	 */
     public boolean authenticateUser(String email, String password, AuthServiceProvider authProvider) {
     	return AuthServiceGatewayFactory.createAuthServiceGateway(authProvider).authenticateUser(email, password).orElse(false);
     }
@@ -46,14 +53,14 @@ public class AuthService {
     }
 
     /**
-     * Generates a token for a user.
+     * Generates a token for a user session.
      *
      * @param user User authenticated.
      * @return Token generated.
      */
-    public String generateToken(User user) {
+    public String generateSessionToken(Long userId) {
         String token = String.valueOf(Instant.now().toEpochMilli());
-        tokens.put(token, user);
+        tokenToUserId.put(token, userId);
         return token;
     }
 
@@ -65,7 +72,9 @@ public class AuthService {
      */
     public User getUserFromToken(String token) {
     	if (token == null) return null;
-        return tokens.get(token);
+    	Long userId = tokenToUserId.get(token);
+    	if (userId == null) return null;
+    	return userRepository.findById(userId).orElse(null);
     }
 
     /**
@@ -74,6 +83,6 @@ public class AuthService {
      * @param token Token to invalidate
      */
     public void invalidateToken(String token) {
-        tokens.remove(token);
+    	tokenToUserId.remove(token);
     }
 }

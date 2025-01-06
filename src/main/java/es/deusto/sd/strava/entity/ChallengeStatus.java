@@ -1,16 +1,16 @@
 package es.deusto.sd.strava.entity;
 
 
-public class ChallengeProgress {
+public class ChallengeStatus {
     private Long challengeId;
     private Float currentProgress;
     private Float percentageAchieved;
     private Long userId;
 
 
-    public ChallengeProgress() {}
+    public ChallengeStatus() {}
 
-    public ChallengeProgress(Long challengeId, Float currentProgress, Float percentageAchieved, Long userId) {
+    public ChallengeStatus(Long challengeId, Float currentProgress, Float percentageAchieved, Long userId) {
         this.challengeId = challengeId;
         this.currentProgress = currentProgress;
         this.percentageAchieved = percentageAchieved;

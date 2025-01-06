@@ -27,7 +27,7 @@ public class Challenge {
     private Float targetDistance; // km, optional
     
 	@Column(name = "target_time")
-    private LocalTime targetTime; // optional
+    private Float targetTime; // optional
     
 	@Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -44,7 +44,7 @@ public class Challenge {
 
     public Challenge() {}
 
-    public Challenge(String name, String sport, Float targetDistance, LocalTime targetTime,
+    public Challenge(String name, String sport, Float targetDistance, Float targetTime,
                      LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, Long creatorId) {
         this.name = name;
         this.sport = sport;
@@ -84,11 +84,11 @@ public class Challenge {
 		this.targetDistance = targetDistance;
 	}
 
-	public LocalTime getTargetTime() {
+	public Float getTargetTime() {
 		return targetTime;
 	}
 
-	public void setTargetTime(LocalTime targetTime) {
+	public void setTargetTime(Float targetTime) {
 		this.targetTime = targetTime;
 	}
 

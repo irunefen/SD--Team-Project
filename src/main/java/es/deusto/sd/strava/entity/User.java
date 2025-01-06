@@ -1,7 +1,11 @@
 package es.deusto.sd.strava.entity;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.SequencedSet;
+import java.util.Set;
+import java.util.SortedSet;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +17,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "users")
@@ -46,9 +51,10 @@ public class User {
 	@JoinTable(
 			name = "user_accepted_challenges", 
 			joinColumns = @JoinColumn(name = "users_id"), 
-			inverseJoinColumns = @JoinColumn(name = "challenge_id")
+			inverseJoinColumns = @JoinColumn(name = "challenge_id"),
+			uniqueConstraints = @UniqueConstraint(columnNames = {"users_id", "challenge_id"})
 	)
-	private List<Challenge> acceptedChallenges;
+	private Set<Challenge> acceptedChallenges;
 
     public User() {}
 
@@ -140,7 +146,7 @@ public class User {
 		this.restHeartRate = restHeartRate;
 	}
 	
-	public List<Challenge> getAcceptedChallenges() {
+	public Set<Challenge> getAcceptedChallenges() {
 		return acceptedChallenges;
 	}
 	

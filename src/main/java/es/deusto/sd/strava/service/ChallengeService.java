@@ -4,7 +4,7 @@ import es.deusto.sd.strava.dao.ChallengeRepository;
 import es.deusto.sd.strava.dao.UserRepository;
 import es.deusto.sd.strava.dto.ChallengeRegistrationDTO;
 import es.deusto.sd.strava.entity.Challenge;
-import es.deusto.sd.strava.entity.ChallengeProgress;
+import es.deusto.sd.strava.entity.ChallengeStatus;
 import es.deusto.sd.strava.entity.TrainingSession;
 import es.deusto.sd.strava.entity.User;
 
@@ -85,7 +85,10 @@ public class ChallengeService {
         if (!challengeRepository.existsById(challengeId)) {
             return false;
         }
+        
         user.getAcceptedChallenges().add(challengeRepository.findById(challengeId).get());
+        userRepository.save(user); // Save the user with the new accepted challenge
+        
         return true;
     }
 
@@ -95,7 +98,7 @@ public class ChallengeService {
      * @param user User.
      * @return List of accepted challenges.
      */
-    public List<Challenge> getUserAcceptedChallenges(User user) {
+    public Set<Challenge> getUserAcceptedChallenges(User user) {
         return user.getAcceptedChallenges();
     }
     
@@ -119,9 +122,9 @@ public class ChallengeService {
      * @param trainingSessions User training sessions
      * @return List of challenge progresses of the user
      */
-    public List<ChallengeProgress> calculateChallengeProgresses(User user, List<TrainingSession> trainingSessions) {
+    public List<ChallengeStatus> calculateChallengeProgresses(User user, List<TrainingSession> trainingSessions) {
         List<Challenge> activeAcceptedChallenges = getUserAcceptedActiveChallenges(user);
-        List<ChallengeProgress> progresses = new ArrayList<>();
+        List<ChallengeStatus> progresses = new ArrayList<>();
 
         for (Challenge challenge : activeAcceptedChallenges) {
             float total = trainingSessions.stream()
@@ -142,11 +145,11 @@ public class ChallengeService {
                     .reduce(0f, Float::sum);
 
             float target = (challenge.getTargetDistance() != null) ? challenge.getTargetDistance() :
-                    (challenge.getTargetTime() != null) ? (float) challenge.getTargetTime().getSecond() : 1f;
+                    (challenge.getTargetTime() != null) ? (float) challenge.getTargetTime() : 1f;
 
             float percentage = Math.min((total / target) * 100, 100);
 
-            ChallengeProgress progress = new ChallengeProgress(
+            ChallengeStatus progress = new ChallengeStatus(
                     challenge.getId(),
                     total,
                     percentage,

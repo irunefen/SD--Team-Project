@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class TrainingSessionResponseDTO {
-    private Long sessionId;
+    private Long id;
     private String title;
     private String sport;
     private Float distance;
@@ -18,7 +18,7 @@ public class TrainingSessionResponseDTO {
 
     public TrainingSessionResponseDTO(Long sessionId, String title, String sport, Float distance,
                                       LocalDate startDate, LocalTime startTime, Integer duration, LocalDateTime createdAt) {
-        this.sessionId = sessionId;
+        this.id = sessionId;
         this.title = title;
         this.sport = sport;
         this.distance = distance;
@@ -28,12 +28,12 @@ public class TrainingSessionResponseDTO {
         this.createdAt = createdAt;
     }
 
-	public Long getSessionId() {
-		return sessionId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setSessionId(Long sessionId) {
-		this.sessionId = sessionId;
+	public void setId(Long sessionId) {
+		this.id = sessionId;
 	}
 
 	public String getTitle() {

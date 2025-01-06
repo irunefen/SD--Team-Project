@@ -3,6 +3,9 @@ package es.deusto.sd.strava.service;
 import es.deusto.sd.strava.dao.UserRepository;
 import es.deusto.sd.strava.dto.RegisterUserDTO;
 import es.deusto.sd.strava.entity.User;
+import jakarta.persistence.EntityManager;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

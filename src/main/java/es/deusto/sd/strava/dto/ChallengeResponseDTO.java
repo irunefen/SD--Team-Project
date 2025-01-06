@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class ChallengeResponseDTO {
-    private Long challengeId;
+    private Long id;
     private String name;
     private String sport;
     private Float targetDistance;
-    private LocalTime targetTime;
+    private Float targetTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;
@@ -18,8 +18,8 @@ public class ChallengeResponseDTO {
     public ChallengeResponseDTO() {}
 
     public ChallengeResponseDTO(Long challengeId, String name, String sport, Float targetDistance,
-    		LocalTime targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
-        this.challengeId = challengeId;
+    		Float targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
+        this.id = challengeId;
         this.name = name;
         this.sport = sport;
         this.targetDistance = targetDistance;
@@ -29,12 +29,12 @@ public class ChallengeResponseDTO {
         this.createdAt = createdAt;
     }
 
-	public Long getChallengeId() {
-		return challengeId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setChallengeId(Long challengeId) {
-		this.challengeId = challengeId;
+	public void setId(Long challengeId) {
+		this.id = challengeId;
 	}
 
 	public String getName() {
@@ -61,11 +61,11 @@ public class ChallengeResponseDTO {
 		this.targetDistance = targetDistance;
 	}
 
-	public LocalTime getTargetTime() {
+	public Float getTargetTime() {
 		return targetTime;
 	}
 
-	public void setTargetTime(LocalTime targetTime) {
+	public void setTargetTime(Float targetTime) {
 		this.targetTime = targetTime;
 	}
 
