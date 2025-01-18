@@ -9,7 +9,7 @@ public class ChallengeResponseDTO {
     private String name;
     private String sport;
     private Float targetDistance;
-    private Float targetTime;
+    private Integer targetTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime createdAt;
@@ -18,7 +18,7 @@ public class ChallengeResponseDTO {
     public ChallengeResponseDTO() {}
 
     public ChallengeResponseDTO(Long challengeId, String name, String sport, Float targetDistance,
-    		Float targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
+    		Integer targetTime, LocalDate startDate, LocalDate endDate, LocalDateTime createdAt) {
         this.id = challengeId;
         this.name = name;
         this.sport = sport;
@@ -61,11 +61,11 @@ public class ChallengeResponseDTO {
 		this.targetDistance = targetDistance;
 	}
 
-	public Float getTargetTime() {
+	public Integer getTargetTime() {
 		return targetTime;
 	}
 
-	public void setTargetTime(Float targetTime) {
+	public void setTargetTime(Integer targetTime) {
 		this.targetTime = targetTime;
 	}
 

@@ -10,6 +10,8 @@ import es.deusto.sd.strava.service.TrainingSessionService;
 import es.deusto.sd.strava.util.TokenUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,12 +40,14 @@ public class TrainingSessionController {
         summary = "Create Training Session",
         description = "Creates a new training session for the authenticated user.",
         responses = {
-            @ApiResponse(responseCode = "201", description = "Created: Training session created successfully"),
+            @ApiResponse(responseCode = "201", description = "Created: Training session created successfully", 
+            		content = @Content(mediaType = "application/json", 
+            		schema = @Schema(example = "{\"id\": 1, \"title\": \"Morning Run\", \"sport\": \"running\", \"distance\": 5.0, \"startDate\": \"2024-01-01\", \"startTime\": \"06:00:00\", \"duration\": 3600, \"createdAt\": \"2024-01-01T06:00:00\"}"))),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided")
         }
     )
     public ResponseEntity<?> createTrainingSession(
-            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
+            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer 1737220995413")
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody TrainingSessionDTO dto) {
 
@@ -82,12 +86,14 @@ public class TrainingSessionController {
             @Parameter(name = "startDate", description = "Start date for filtering sessions (optional)", example = "2023-01-01")
             @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(name = "endDate", description = "End date for filtering sessions (optional)", example = "2023-12-31")
-            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @Parameter(name = "limit", description = "Limit for the number of training sessions returned (optional)", example = "5")
+            @RequestParam(name = "limit", required = false, defaultValue = "5") Long limit) {
 
     	User user = authService.getUserFromToken(TokenUtils.extractToken(authorizationHeader));
 		if (user == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        List<TrainingSessionResponseDTO> sessions = trainingSessionService.getTrainingSessions(user, startDate, endDate).stream()
+        List<TrainingSessionResponseDTO> sessions = trainingSessionService.getTrainingSessions(user, startDate, endDate, limit).stream()
         		.map(session -> new TrainingSessionResponseDTO(
 		                session.getId(),
 		                session.getTitle(),

@@ -4,12 +4,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 public class TrainingSessionResponseDTO {
     private Long id;
     private String title;
     private String sport;
     private Float distance;
     private LocalDate startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime startTime;
     private Integer duration;
     private LocalDateTime createdAt;

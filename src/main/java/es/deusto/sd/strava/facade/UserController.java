@@ -7,6 +7,8 @@ import es.deusto.sd.strava.service.AuthService;
 import es.deusto.sd.strava.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -34,15 +36,21 @@ public class UserController {
         summary = "User Registration",
         description = "Registers a new user in the Strava system",
         responses = {
-            @ApiResponse(responseCode = "201", description = "Created: User registered successfully"),
-            @ApiResponse(responseCode = "409", description = "Conflict: User already exists"),
-            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided")
+            @ApiResponse(responseCode = "201", description = "Created: User registered successfully", 
+            		content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"userId\": 4}"))),
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided"),
+            @ApiResponse(responseCode = "409", description = "Conflict: User already exists or account does not exist in the authentication provider", 
+            		content = @Content(mediaType = "application/json", schema = @Schema(example = "{\"conflict\": \"User already exists\"}")))
         }
     )
     public ResponseEntity<?> registerUser(
-            @Parameter(name = "authProviderName", description = "Name of the authentication provider", required = true, example = "Google")
+            @Parameter(name = "authProviderName", description = "Name of the authentication service provider", required = true, example = "google")
             @RequestParam("authProviderName") String authProviderName,
             @RequestBody RegisterUserDTO dto) {
+    	
+    	if (dto.getEmail() == null || dto.getEmail().isEmpty()) return new ResponseEntity<>(Map.of("message", "Email not provided"), HttpStatus.BAD_REQUEST);
+    	if (dto.getName() == null || dto.getName().isEmpty()) return new ResponseEntity<>(Map.of("message", "Name not provided"), HttpStatus.BAD_REQUEST);
+    	if (dto.getBirthdate() == null) return new ResponseEntity<>(Map.of("message", "Birthdate not provided"), HttpStatus.BAD_REQUEST);
     	
     	// Check if there is already a Strava user with the same email
     	if(userService.getUserRepository().existsByEmail(dto.getEmail())){

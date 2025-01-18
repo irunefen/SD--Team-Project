@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,15 +45,15 @@ public class ChallengeController {
     @PostMapping
     @Operation(
         summary = "Create Challenge",
-        description = "Allows the user to set up a new challenge.",
+        description = "Creates a new challenge.",
         responses = {
             @ApiResponse(responseCode = "201", description = "Created: Challenge set up successfully"),
-            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided"),
+            @ApiResponse(responseCode = "400", description = "Bad Request: Invalid data provided", content = @Content(schema = @Schema(example = "{\"message\": \"Invalid data.\"}"))),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
         }
     )
     public ResponseEntity<?> createChallenge(
-            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
+            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer 1737220995413")
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody ChallengeRegistrationDTO dto) {        
         
@@ -89,7 +91,7 @@ public class ChallengeController {
         }
     )
     public ResponseEntity<?> getActiveChallenges(
-            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
+            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer 1737220995413")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "sport", description = "Sport type filter (optional)")
             @RequestParam(name = "sport", required = false) String sport,
@@ -130,12 +132,12 @@ public class ChallengeController {
         description = "Allows the user to accept a challenge by its ID.",
         responses = {
             @ApiResponse(responseCode = "200", description = "OK: Challenge accepted successfully"),
-            @ApiResponse(responseCode = "404", description = "Not Found: Challenge not found"),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Invalid token provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found: Challenge not found"),
         }
     )
     public ResponseEntity<?> acceptChallenge(
-            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer your_token")
+            @Parameter(name = "Authorization", description = "Bearer token", required = true, example = "Bearer 1737220995413")
             @RequestHeader("Authorization") String authorizationHeader,
             @Parameter(name = "challengeId", description = "ID of the challenge to accept", required = true)
             @RequestParam("challengeId") String challengeId) {
@@ -198,7 +200,7 @@ public class ChallengeController {
 		List<Challenge> activeChallenges = challengeService.getUserAcceptedActiveChallenges(user);
 		if (activeChallenges.isEmpty())	return new ResponseEntity<>(HttpStatus.NO_CONTENT);		
 		
-		List<TrainingSession> trainingSessions = trainingSessionService.getTrainingSessions(user, null, null);		
+		List<TrainingSession> trainingSessions = trainingSessionService.getTrainingSessions(user, null, null, null);		
         List<ChallengeStatus> challengeProgresses = challengeService.calculateChallengeProgresses(user, trainingSessions);
         
         return ResponseEntity.ok(challengeProgresses);

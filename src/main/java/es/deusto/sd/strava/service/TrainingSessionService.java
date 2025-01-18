@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Service for managing training sessions.
@@ -52,16 +53,18 @@ public class TrainingSessionService {
      * @param endDate   End date (optional).
      * @return Session list.
      */
-    public List<TrainingSession> getTrainingSessions(User user, LocalDate startDate, LocalDate endDate) {
+    public List<TrainingSession> getTrainingSessions(User user, LocalDate startDate, LocalDate endDate, Long limit) {
         List<TrainingSession> sessions = trainingSessionRepository.findByUserId(user.getId());
 
-        return sessions.stream()
+        Stream<TrainingSession> trainingSessionStream = sessions.stream()
                 .filter(session -> {
                     boolean afterStart = (startDate == null) || !session.getStartDate().isBefore(startDate);
                     boolean beforeEnd = (endDate == null) || !session.getStartDate().isAfter(endDate);
                     return afterStart && beforeEnd;
                 })
-                .sorted(Comparator.comparing(TrainingSession::getStartDate).reversed())
-                .toList();
+                .sorted(Comparator.comparing(TrainingSession::getStartDate).reversed());
+        
+        if (limit != null) trainingSessionStream = trainingSessionStream.limit(limit);
+        return trainingSessionStream.toList();
     }
 }
